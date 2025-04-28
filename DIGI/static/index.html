@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Noticias Hoy</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        nav {
+            background-color: #003366;
+            padding: 1em;
+        }
+        nav ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+        }
+        nav ul li {
+            margin: 0 15px;
+        }
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        nav ul li a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            padding: 2em;
+        }
+        .welcome {
+            text-align: center;
+            margin-bottom: 2em;
+        }
+        .welcome h1 {
+            color: #003366;
+        }
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .news-card {
+            background: white;
+            padding: 1em;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .news-card h3 {
+            margin-top: 0;
+            color: #003366;
+        }
+        .news-card p {
+            color: #333;
+        }
+        /* Chatbot */
+        .chatbot-button {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .chatbot-window {
+            position: fixed;
+            bottom: 90px;
+            right: 20px;
+            width: 300px;
+            max-height: 400px;
+            background: white;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            display: none;
+            flex-direction: column;
+            overflow: hidden;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .chatbot-header {
+            background-color: #003366;
+            color: white;
+            padding: 10px;
+            font-weight: bold;
+        }
+
+        .chatbot-messages {
+            padding: 10px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .chatbot-input {
+            display: flex;
+            border-top: 1px solid #ccc;
+        }
+
+        .chatbot-input input {
+            flex: 1;
+            padding: 10px;
+            border: none;
+            outline: none;
+        }
+
+        .chatbot-input button {
+            background-color: #003366;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            cursor: pointer;
+        }
+
+        .chatbot-input button:hover {
+            background-color: #0055aa;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <ul>
+            <li><a href="#">Inicio</a></li>
+            <li><a href="#">Noticias</a></li>
+            <li><a href="#">Contacto</a></li>
+        </ul>
+    </nav>
+
+    <div class="container">
+        <div class="welcome">
+            <h1>¡Bienvenido a Noticias Hoy!</h1>
+            <p>Tu fuente de información actualizada en tiempo real.</p>
+        </div>
+
+        <div class="news-grid">
+            <div class="news-card">
+                <h3>Última hora: Evento internacional</h3>
+                <p>Se ha producido un importante evento en el mundo que cambia el curso de la historia...</p>
+            </div>
+            <div class="news-card">
+                <h3>Economía en alza</h3>
+                <p>Los mercados financieros experimentan un crecimiento sin precedentes en este trimestre...</p>
+            </div>
+            <div class="news-card">
+                <h3>Deportes: Final épica</h3>
+                <p>El partido más esperado del año termina en una victoria inolvidable para el equipo local...</p>
+            </div>
+            <div class="news-card">
+                <h3>Avances en tecnología</h3>
+                <p>Una nueva innovación promete revolucionar la industria de la comunicación móvil...</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Botón de abrir el chatbot -->
+    <button class="chatbot-button" onclick="toggleChatbot()">💬</button>
+
+    <!-- Ventana del chatbot -->
+    <div class="chatbot-window" id="chatbot">
+        <div class="chatbot-header">
+            Chat de ayuda
+        </div>
+        <div class="chatbot-messages" id="chatbotMessages">
+            <p><strong>Bot:</strong> ¡Hola! ¿Cómo puedo asistirte?</p>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="userInput" placeholder="Escribe tu mensaje...">
+            <button onclick="sendMessage()">Enviar</button>
+        </div>
+    </div>
+
+    <script>
+        function toggleChatbot() {
+            const chatbot = document.getElementById('chatbot');
+            chatbot.style.display = chatbot.style.display === 'flex' ? 'none' : 'flex';
+        }
+    
+        function sendMessage() {
+            const userInput = document.getElementById('userInput');
+            const messages = document.getElementById('chatbotMessages');
+    
+            if (userInput.value.trim() !== '') {
+                const userText = userInput.value;
+                const userMessage = document.createElement('p');
+                userMessage.innerHTML = '<strong>Tú:</strong> ' + userText;
+                messages.appendChild(userMessage);
+    
+                fetch('http://127.0.0.1:5000/api/chat', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ message: userText })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.response) {  // Verificar que hay respuesta
+                        const botMessage = document.createElement('p');
+                        botMessage.innerHTML = '<strong>Bot:</strong> ' + data.response;
+                        messages.appendChild(botMessage);
+                    } else {
+                        const botMessage = document.createElement('p');
+                        botMessage.innerHTML = '<strong>Bot:</strong> Lo siento, hubo un error al procesar tu mensaje.';
+                        messages.appendChild(botMessage);
+                    }
+                    messages.scrollTop = messages.scrollHeight; // Auto-scroll
+                })
+                .catch(error => {
+                    const botMessage = document.createElement('p');
+                    botMessage.innerHTML = '<strong>Bot:</strong> Lo siento, hubo un error al procesar tu mensaje.';
+                    messages.appendChild(botMessage);
+                });
+
+
+                userInput.value = '';
+            }
+        }
+    </script>
+</body>
+</html>
